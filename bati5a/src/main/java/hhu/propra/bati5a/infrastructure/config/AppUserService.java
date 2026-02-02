@@ -17,7 +17,7 @@ import java.util.Set;
 @Component
 public class AppUserService implements OAuth2UserService {
 
-    @Value("${bati5a.rollen.admin}") private Set<String> admin;
+    @Value("${bat.rollen.admin}") private Set<String> admin;
     private final DefaultOAuth2UserService DefaultOAuth2UserService = new DefaultOAuth2UserService();
 
     @Override
@@ -26,12 +26,14 @@ public class AppUserService implements OAuth2UserService {
         Set<GrantedAuthority> authorities=new HashSet<>(user.getAuthorities());
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         String login= user.getAttribute("login");
+        System.out.printf("USER LOGIN: %s%n", login);
+        System.out.println("ADMIN : " + admin);
         if (admin.contains(login)){
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             System.out.printf("ADMIN PRIVILEGES GRANTED TO USER %s%n", login);
         }
         else {
-            System.out.printf("ADMIN PRIVILEGES NOT GRANTED TO USER %s%n", login);
+            System.out.printf("ADMIN PRIVILEGES DENIED TO USER %s%n", login);
         }
         return new DefaultOAuth2User(authorities,user.getAttributes(),"login");
     }

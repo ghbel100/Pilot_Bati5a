@@ -6,7 +6,7 @@ spring:
           github:
             client-id: ${CLIENT_ID}
             client-secret: ${CLIENT_SECRET}
-bati5a:
+bat:
   rollen:
-    admin: ghbel100111
+    admin: ghbel100
 
