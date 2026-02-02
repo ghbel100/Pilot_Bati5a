@@ -1,0 +1,141 @@
+body {
+
+    background-color: #ebebeb;
+
+}
+
+
+
+.logo-wrapper{
+    margin:0rem;
+    height:auto;
+    width:15rem !important;
+}
+
+
+.header-main{
+    height: auto;
+    overflow: auto;
+    padding: 0rem;
+    margin: 0rem;
+    display: block ruby;
+}
+
+.text-right{
+    text-align: right;
+    height: 50%;
+}
+
+#navbar {
+    background-color: #0025DB
+}
+
+
+#reftext{
+    color: #eaf8bf;
+}
+.main-grid{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+.link-box{
+    width: 200px;
+    height: 100px;
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 10px;
+    margin: 10px;
+}
+
+.col-centered{
+    width: 33% !important;
+    display: flex;
+    justify-content: center;
+}
+
+.content-box {
+    background-color: #f9f9f9 !important;
+	padding: 2rem;
+	text-align: center;
+}
+
+/* Footer styles */
+
+.section-subscribe {
+    padding: 5em 0;
+}
+
+.form-control {
+    outline:none;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    height: 50px;
+}
+.form-control:focus{
+    -webkit-box-shadow: 0 3px 10px -2px rgba(0,0,0,0.2) !important;
+    box-shadow 0 3px 10px -2px rgba(0,0,0,0.2) !important;
+}
+.form-control:focus, form-control: active{
+    outline: none;
+}
+.btn {
+    -webkit-box-shadow: 0 3px 10px -2px rgba(0,0,0,0.2) !important;
+    box-shadow 0 3px 10px -2px rgba(0,0,0,0.2) !important;
+}
+.btn.btn-secondary{
+    color: #fff;
+    border-width: 2px;
+    background: #576CDB;
+    border-color: #576CDB;
+    height: 50px;
+    padding: 10px;
+}
+
+.site-footer{
+    padding: 5em 0;
+    background: #00B3E0;
+    font-size: 14px;
+    color: #000;
+}
+.site-footer p:last-child{
+    margin-bottom: 0;
+}
+.site-footer a{
+    color: #ffc107;
+    border-bottom: 1px solid transparent;
+}
+.site-footer a:hover{
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.site-footer h2{
+    font-size: 22px;
+    margin-bottom: 28px;
+    letter-spacing: 0.2em;
+    color: #fff
+}
+.site-footer .footer-link li{
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+.footer-social{
+    line-height: 0;
+    border-radius: 50%;
+    margin: 0px 5px 5px 0px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    display: inline-block;
+}
+.footer-social a:hover{
+    background: #fff;
+    border-color: #fff;
+    color: #000;
+}
+footer{
+    width:100%;
+    text-align: center;
+}

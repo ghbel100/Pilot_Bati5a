@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mein Profil – Bati5a</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <img src="/images/HHU_Logo.svg.png" alt="HHU Logo" height="50">
+                </a>
+                <div class="collapse navbar-collapse justify-content-end">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/topics">Topics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/match">Begleiter finden</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/profile">Profil</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <div th:if="${info}" class="alert alert-info" th:text="${info}"></div>
+                <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+                <!-- GITHUB PROFILE MINI CARD -->
+                <div th:if="${githubProfile}" class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4 bg-white">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <img th:if="${githubProfile.get('avatar_url')}" th:src="${githubProfile.get('avatar_url')}"
+                            alt="GitHub Avatar" class="rounded-circle me-4 shadow-sm" width="80" height="80">
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold text-primary">
+                                <span th:text="${githubProfile.get('name')}">GitHub Name</span>
+                                <small class="text-muted" th:text="'(@' + ${githubProfile.get('login')} + ')'"></small>
+                            </h2>
+                            <p class="text-muted mb-2" th:text="${githubProfile.get('bio')}">Bio</p>
+                            <a th:if="${githubProfile.get('html_url')}" th:href="${githubProfile.get('html_url')}"
+                                class="btn btn-sm btn-outline-secondary" target="_blank">
+                                <i class="bi bi-github"></i> GitHub Profil ansehen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE CREATION FORM -->
+                <div th:if="${needsCreation}" class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-warning text-dark py-3">
+                        <h2 class="h4 mb-0 fw-bold">Profil vervollständigen</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">Bitte vervollständigen Sie Ihre Daten, um Bati5a nutzen zu können.
+                        </p>
+                        <form th:action="@{/profile/create}" th:object="${profileForm}" method="post">
+                            <div class="mb-3">
+                                <label for="name" class="form-label fw-bold">Name</label>
+                                <input type="text" id="name" th:field="*{name}" class="form-control"
+                                    th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'">
+                                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="invalid-feedback">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-bold">Email</label>
+                                <input type="text" id="email" th:field="*{email}" class="form-control"
+                                    th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+                                    class="invalid-feedback">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="branch" class="form-label fw-bold">Studiengang / Bereich</label>
+                                <input type="text" id="branch" th:field="*{branch}" class="form-control"
+                                    th:classappend="${#fields.hasErrors('branch')} ? 'is-invalid'"
+                                    placeholder="z.B. Informatik">
+                                <div th:if="${#fields.hasErrors('branch')}" th:errors="*{branch}"
+                                    class="invalid-feedback"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="birthday" class="form-label fw-bold">Geburtsdatum</label>
+                                <input type="date" id="birthday" th:field="*{birthday}" class="form-control"
+                                    th:classappend="${#fields.hasErrors('birthday')} ? 'is-invalid'">
+                                <div th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"
+                                    class="invalid-feedback"></div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold d-block">Ich bin...</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" th:field="*{role}" id="roleStudent"
+                                        value="Student" th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+                                    <label class="form-check-label" for="roleStudent">Student</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" th:field="*{role}" id="roleAdvisor"
+                                        value="Advisor" th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+                                    <label class="form-check-label" for="roleAdvisor">Betreuer</label>
+                                </div>
+                                <div th:if="${#fields.hasErrors('role')}" th:errors="*{role}"
+                                    class="text-danger small d-block"></div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Profil erstellen</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- BATI5A LOCAL PROFILE -->
+                <div th:if="${user}" class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                    <div
+                        class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0 fw-bold">Mein Bati5a Profil</h2>
+                        <div th:if="${user.githubLogin}" class="text-end">
+                            <span class="badge bg-light text-dark shadow-sm mb-2 d-inline-block">
+                                <img th:src="${user.avatarUrl}" class="rounded-circle me-1" width="20" height="20"
+                                    th:if="${user.avatarUrl}">
+                                Verknüpft mit <span th:text="${user.githubLogin}"></span>
+                            </span>
+                            <div th:if="${user.githubLogin.equalsIgnoreCase('ghbel100')}">
+                                <a href="/admin" class="btn btn-sm btn-dark shadow-sm">
+                                    <i class="bi bi-shield-lock"></i> Admin Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div th:if="${user.advisorRequestPending}"
+                            class="alert alert-warning border-0 rounded-4 shadow-sm mb-4">
+                            <i class="bi bi-clock-history me-2"></i>
+                            <strong>Anfrage ausstehend:</strong> Ihr Antrag auf die Betreuer-Rolle wird derzeit geprüft.
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted fw-bold">Name:</div>
+                            <div class="col-sm-8 fw-bold" th:text="${user.name}"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted fw-bold">Bereich/Zweig:</div>
+                            <div class="col-sm-8" th:text="${user.branch}"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted fw-bold">Email:</div>
+                            <div class="col-sm-8" th:text="${user.mail}"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted fw-bold">Alter:</div>
+                            <div class="col-sm-8" th:text="${user.age}"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 text-muted fw-bold">Typ:</div>
+                            <div class="col-sm-8">
+                                <span class="badge bg-info text-dark" th:text="${user.type}"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- STUDENT SPECIFIC -->
+                        <div th:if="${user.type == 'Student'}">
+                            <h3 class="h5 fw-bold text-primary mb-3">Studentendetails</h3>
+                            <div class="mb-3">
+                                <h4 class="h6 fw-bold text-muted">Interessen:</h4>
+                                <div th:if="${user.interests}" class="mb-2">
+                                    <span th:each="tag : ${user.interests}" class="badge bg-secondary me-1"
+                                        th:text="${tag.name}">Tag</span>
+                                </div>
+                                <div th:unless="${user.interests}" class="text-muted small mb-2">Keine Interessen
+                                    angegeben.
+                                </div>
+                                <form th:action="@{/profile/interests/add}" method="post" class="d-flex gap-2 mt-3">
+                                    <input type="text" name="interest" class="form-control form-control-sm"
+                                        placeholder="Interesse hinzufügen">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Hinzufügen</button>
+                                </form>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="h6 fw-bold text-muted">Bestandene Kurse:</h4>
+                                <div th:if="${user.passedCourses}" class="mb-2">
+                                    <span th:each="course : ${user.passedCourses}" class="badge bg-success me-1"
+                                        th:text="${course.name}">Kurs</span>
+                                </div>
+                                <div th:unless="${user.passedCourses}" class="text-muted small mb-2">Keine Kurse
+                                    angegeben.
+                                </div>
+                                <form th:action="@{/profile/courses/add}" method="post" class="d-flex gap-2 mt-3">
+                                    <input type="text" name="name" class="form-control form-control-sm"
+                                        placeholder="Kurs hinzufügen">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Hinzufügen</button>
+                                </form>
+                            </div>
+                            <!-- ROLE SWITCHING (OWN ONLY) -->
+                            <div class="mb-3" th:if="${isOwnProfile}">
+                                <h4 class="h6 fw-bold text-muted">Aktionen:</h4>
+                                <form th:action="@{/profile/role/switch}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"
+                                        th:text="${user.type == 'Student' ? 'Zu Betreuer wechseln' : 'Zu Student wechseln'}">Rolle
+                                        wechseln</button>
+                                </form>
+                            </div>
+
+                            <!-- PUBLIC CONTACT ACTION -->
+                            <div class="mb-3" th:unless="${isOwnProfile}">
+                                <h4 class="h6 fw-bold text-muted">Aktionen:</h4>
+                                <a th:href="'mailto:' + ${user.mail}" class="btn btn-sm btn-outline-primary">📧 Email
+                                    senden</a>
+                            </div>
+                        </div>
+
+                        <!-- ADVISOR SPECIFIC -->
+                        <div th:if="${user.type == 'Advisor'}">
+                            <h3 class="h5 fw-bold text-primary mb-3">Betreuerdetails</h3>
+                            <!-- ROLE SWITCHING (OWN ONLY) -->
+                            <div class="mb-3" th:if="${isOwnProfile}">
+                                <h4 class="h6 fw-bold text-muted">Aktionen:</h4>
+                                <form th:action="@{/profile/role/switch}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"
+                                        th:text="${user.type == 'Student' ? 'Zu Betreuer wechseln' : 'Zu Student wechseln'}">Rolle
+                                        wechseln</button>
+                                </form>
+                            </div>
+
+                            <!-- PUBLIC CONTACT ACTION -->
+                            <div class="mb-3" th:unless="${isOwnProfile}">
+                                <h4 class="h6 fw-bold text-muted">Aktionen:</h4>
+                                <a th:href="'mailto:' + ${user.mail}" class="btn btn-sm btn-outline-primary">📧 Email
+                                    senden</a>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="h6 fw-bold text-muted">Fachbereiche / Tags:</h4>
+                                <div th:if="${user.tags}" class="mb-2">
+                                    <span th:each="tag : ${user.tags}" class="badge bg-secondary me-1"
+                                        th:text="${tag.name}">Tag</span>
+                                </div>
+                                <div th:unless="${user.tags}" class="text-muted small mb-2">Keine Tags angegeben.</div>
+                                <form th:action="@{/profile/tags/add}" method="post" class="d-flex gap-2 mt-2"
+                                    th:if="${isOwnProfile}">
+                                    <input type="text" name="name" class="form-control form-control-sm"
+                                        placeholder="Tag hinzufügen">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Hinzufügen</button>
+                                </form>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="h6 fw-bold text-muted">Links:</h4>
+                                <p class="text-muted" th:text="${user.links} ?: 'Keine Links hinterlegt.'"></p>
+                                <form th:action="@{/profile/links/update}" method="post" class="d-flex gap-2 mt-2"
+                                    th:if="${isOwnProfile}">
+                                    <input type="text" name="links" class="form-control form-control-sm"
+                                        th:value="${user.links}" placeholder="Links (kommagetrennt)">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Speichern</button>
+                                </form>
+                            </div>
+                            <div class="mb-3">
+                                <h4 class="h6 fw-bold text-muted">Hochgeladene Dateien:</h4>
+                                <ul class="list-group list-group-flush mb-0" th:if="${user.files}">
+                                    <li th:each="fileName : ${user.files}"
+                                        class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                        <span th:text="${fileName}">filename.pdf</span>
+                                        <a th:href="@{/profile/files/download(name=${fileName})}"
+                                            class="btn btn-sm btn-link text-primary">Ansehen</a>
+                                    </li>
+                                </ul>
+                                <div th:unless="${user.files}" class="text-muted small">Keine Dateien hochgeladen.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADVISOR FILE UPLOAD (OWN ONLY) -->
+                <div th:if="${user != null && user.type == 'Advisor' && isOwnProfile}"
+                    class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h3 class="h5 fw-bold text-primary mb-3">Datei hochladen</h3>
+                        <p class="text-muted small mb-4">Laden Sie relevante Dokumente für Ihre Themen hoch.</p>
+                        <form th:action="@{/profile/upload}" method="post" enctype="multipart/form-data"
+                            class="d-flex gap-2">
+                            <input type="file" name="file" class="form-control" required>
+                            <button type="submit" class="btn btn-primary px-4">Hochladen</button>
+                        </form>
+                        <div th:if="${message}" class="mt-3 text-success small" th:text="${message}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>
