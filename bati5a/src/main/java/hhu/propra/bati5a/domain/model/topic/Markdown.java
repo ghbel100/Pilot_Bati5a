@@ -28,6 +28,22 @@ public class Markdown {
         return content;
     }
 
+    /**
+     * Returns a plain text summary of the content, stripping HTML tags.
+     */
+    public String getSummary(int maxLength) {
+        if (content == null || content.isEmpty()) {
+            return "";
+        }
+        // Naive HTML tag stripping
+        String plainText = content.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+        
+        if (plainText.length() <= maxLength) {
+            return plainText;
+        }
+        return plainText.substring(0, maxLength) + "...";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

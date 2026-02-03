@@ -8,6 +8,8 @@ import hhu.propra.bati5a.domain.model.Tag;
 import hhu.propra.bati5a.domain.model.person.Advisor;
 import hhu.propra.bati5a.domain.model.person.Student;
 import hhu.propra.bati5a.domain.model.person.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +26,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProfileController {
@@ -92,7 +97,8 @@ public class ProfileController {
             @Valid @ModelAttribute("profileForm") ProfileForm profileForm,
             BindingResult bindingResult,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
@@ -122,6 +128,9 @@ public class ProfileController {
         }
 
         profileService.saveProfile(newUser);
+        
+        // Set cookie for profile name
+        setCookie(response, "bati5a_profile_name", newUser.getName());
 
         return "redirect:/profile";
     }
@@ -130,7 +139,8 @@ public class ProfileController {
     public String addInterest(@AuthenticationPrincipal OAuth2User principal,
             @Valid @ModelAttribute Tag tag,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
@@ -152,6 +162,10 @@ public class ProfileController {
             student.setInterests(interests);
             profileService.saveProfile(student);
             redirectAttributes.addFlashAttribute("message", "Interesse '" + tag.getName() + "' hinzugefügt!");
+            
+            // Sync interests via cookie
+            String interestsStr = interests.stream().map(Tag::getName).collect(Collectors.joining(","));
+            setCookie(response, "bati5a_interests", interestsStr);
         }
 
         return "redirect:/profile";
@@ -161,7 +175,8 @@ public class ProfileController {
     public String addCourse(@AuthenticationPrincipal OAuth2User principal,
             @Valid @ModelAttribute Course course,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
@@ -183,6 +198,10 @@ public class ProfileController {
             student.setPassedCourses(courses);
             profileService.saveProfile(student);
             redirectAttributes.addFlashAttribute("message", "Kurs '" + course.getName() + "' hinzugefügt!");
+            
+            // Sync courses via cookie
+            String coursesStr = courses.stream().map(Course::getName).collect(Collectors.joining(","));
+            setCookie(response, "bati5a_courses", coursesStr);
         }
 
         return "redirect:/profile";
@@ -224,7 +243,8 @@ public class ProfileController {
     public String addAdvisorTag(@AuthenticationPrincipal OAuth2User principal,
             @Valid @ModelAttribute Tag tag,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
@@ -234,8 +254,15 @@ public class ProfileController {
             return "redirect:/profile";
         }
 
-        profileService.addAdvisorTag(principal.getAttribute("login"), tag.getName());
+        String login = principal.getAttribute("login");
+        profileService.addAdvisorTag(login, tag.getName());
         redirectAttributes.addFlashAttribute("message", "Tag '" + tag.getName() + "' hinzugefügt!");
+        
+        Optional<User> userOpt = profileService.getProfileByGithubLogin(login);
+        if (userOpt.isPresent() && userOpt.get() instanceof Advisor advisor) {
+            String tagsStr = advisor.getTags().stream().map(Tag::getName).collect(Collectors.joining(","));
+            setCookie(response, "bati5a_tags", tagsStr);
+        }
 
         return "redirect:/profile";
     }
@@ -243,13 +270,16 @@ public class ProfileController {
     @PostMapping("/profile/links/update")
     public String updateAdvisorLinks(@AuthenticationPrincipal OAuth2User principal,
             @RequestParam("links") String links,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
 
         profileService.updateAdvisorLinks(principal.getAttribute("login"), links);
         redirectAttributes.addFlashAttribute("message", "Links aktualisiert!");
+        
+        setCookie(response, "bati5a_links", links);
 
         return "redirect:/profile";
     }
@@ -257,7 +287,8 @@ public class ProfileController {
     @PostMapping("/profile/upload")
     public String handleFileUpload(@AuthenticationPrincipal OAuth2User principal,
             @RequestParam("file") MultipartFile file,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
 
         if (principal == null)
             return "redirect:/";
@@ -268,6 +299,12 @@ public class ProfileController {
             profileService.addAdvisorFile(login, savedFile.getName());
             redirectAttributes.addFlashAttribute("message",
                     "Datei '" + file.getOriginalFilename() + "' erfolgreich hochgeladen!");
+                    
+            Optional<User> userOpt = profileService.getProfileByGithubLogin(login);
+            if (userOpt.isPresent() && userOpt.get() instanceof Advisor advisor) {
+                String filesStr = String.join(",", advisor.getFiles());
+                setCookie(response, "bati5a_files", filesStr);
+            }
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("error", "Fehler beim Hochladen: " + e.getMessage());
         }
@@ -293,5 +330,13 @@ public class ProfileController {
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    private void setCookie(HttpServletResponse response, String name, String value) {
+        if (value == null) return;
+        String encodedValue = URLEncoder.encode(value, StandardCharsets.UTF_8);
+        Cookie cookie = new Cookie(name, encodedValue);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }

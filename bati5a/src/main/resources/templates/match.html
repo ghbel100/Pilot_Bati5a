@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Begleiter finden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+
+<body class="bg-light">
+
+    <!-- HEADER / NAVBAR -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" aria-label="Hauptnavigation">
+
+            <div class="container-fluid">
+
+                <!-- Logo -->
+                <a href="/" class="navbar-brand d-flex align-items-center">
+                    <img src="/images/HHU_Logo.svg.png" alt="Heinrich-Heine-Universität Düsseldorf – Startseite"
+                        height="50">
+                </a>
+
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
+                    aria-controls="main-nav" aria-expanded="false" aria-label="Navigation ein- oder ausklappen">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navigation -->
+                <div class="collapse navbar-collapse justify-content-end" id="main-nav">
+
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">
+                                About
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/topics">
+                                Topics und Übersicht
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/match">
+                                Begleiter finden
+                            </a>
+                        </li>
+
+                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                            <a class="nav-link" href="/profile">
+                                Profil
+                            </a>
+                        </li>
+
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="btn btn-primary ms-lg-3" href="/login">
+                                Anmelden
+                            </a>
+                        </li>
+
+                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger ms-lg-3">
+                                    Abmelden
+                                </button>
+                            </form>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container py-5">
+        <header class="mb-4 text-center">
+            <h1 class="display-5 text-primary mb-1">Begleiter und Themen finden</h1>
+            <p class="lead text-primary mb-4">
+                Geben Sie Ihre bestandenen Kurse und Interessen ein, um passende Themen und Betreuer zu finden.
+            </p>
+        </header>
+
+        <!-- INPUT SECTION -->
+        <div class="row mb-5 justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <form th:action="@{/match}" method="post">
+                            <div class="mb-3">
+                                <label for="courses" class="form-label fw-bold">Bestandene Kurse (kommagetrennt)</label>
+                                <input type="text" id="courses" name="courses" class="form-control" 
+                                    placeholder="z.B. OOP, Softwareentwicklung, Datenbanken..."
+                                    th:value="${courses}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="interests" class="form-label fw-bold">Interessen / Tags (kommagetrennt)</label>
+                                <input type="text" id="interests" name="interests" class="form-control" 
+                                    placeholder="z.B. Java, AI, Web..."
+                                    th:value="${interests}">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Suchen</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div th:if="${showResults}">
+            <h3 class="fw-bold mb-4 text-primary">Passende Themen</h3>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+                <div class="col" th:each="rating : ${topicRatings}">
+                    <a th:href="@{/topic/{title}(title=${rating.entity.title})}" class="text-decoration-none">
+                        <div class="card h-100 bg-white border-0 shadow-sm rounded-4 p-3 transition"
+                            style="transition: box-shadow .2s;">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title text-primary fw-bold mb-0" th:text="${rating.entity.title}">Thementitel</h5>
+                                    <span class="badge bg-success" th:text="'Score: ' + ${rating.score}">Score</span>
+                                </div>
+                                <div class="mt-2 text-start">
+                                    <span th:each="tag : ${rating.entity.tags}"
+                                        class="badge bg-light text-primary border border-primary-subtle me-1 mb-1"
+                                        th:text="${tag.name}">Tag</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div th:if="${#lists.isEmpty(topicRatings)}" class="col-12 text-center text-muted">
+                    Keine passenden Themen gefunden.
+                </div>
+            </div>
+
+            <h3 class="fw-bold mb-4 text-primary">Passende Betreuer</h3>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div class="col" th:each="rating : ${advisorRatings}">
+                    <a th:href="@{/profile/{login}(login=${rating.entity.githubLogin})}"
+                        class="text-decoration-none text-dark h-100" th:if="${rating.entity.githubLogin}">
+                        <div class="card h-100 bg-white border-0 shadow-sm rounded-4 p-3 transition"
+                            style="transition: transform .2s, box-shadow .2s;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3 justify-content-between">
+                                    <div>
+                                        <span class="badge bg-info text-dark me-2">Advisor</span>
+                                        <h5 class="card-title fw-bold mb-0 d-inline" th:text="${rating.entity.name}">Name</h5>
+                                    </div>
+                                    <span class="badge bg-success" th:text="'Score: ' + ${rating.score}">Score</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted"
+                                        th:text="${rating.entity.branch}">Bereich</small></p>
+                                <p class="card-text"><span class="text-decoration-none text-primary"
+                                        th:text="${rating.entity.mail}">Email</span></p>
+
+                                <div class="mt-2">
+                                    <small class="d-block fw-bold text-muted mb-1">Tags:</small>
+                                    <span th:each="tag : ${rating.entity.tags}" class="badge bg-secondary me-1"
+                                        th:text="${tag.name}">Tag</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                     <div th:unless="${rating.entity.githubLogin}" class="card h-100 bg-white border-0 shadow-sm rounded-4 p-3">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3 justify-content-between">
+                                <div>
+                                    <span class="badge bg-info text-dark me-2">Advisor</span>
+                                    <h5 class="card-title fw-bold mb-0 d-inline" th:text="${rating.entity.name}">Name</h5>
+                                </div>
+                                <span class="badge bg-success" th:text="'Score: ' + ${rating.score}">Score</span>
+                            </div>
+                            <p class="card-text mb-1"><small class="text-muted" th:text="${rating.entity.branch}">Bereich</small>
+                            </p>
+                            <p class="card-text email-link" th:text="${rating.entity.mail}">Email</p>
+                             <div class="mt-2">
+                                <small class="d-block fw-bold text-muted mb-1">Tags:</small>
+                                <span th:each="tag : ${rating.entity.tags}" class="badge bg-secondary me-1"
+                                    th:text="${tag.name}">Tag</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(advisorRatings)}" class="col-12 text-center text-muted">
+                    Keine passenden Betreuer gefunden.
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

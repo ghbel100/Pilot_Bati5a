@@ -45,7 +45,15 @@ public class MatchingService {
             if (passed == null)
                 passed = Collections.emptySet();
 
-            if (passed.containsAll(required)) {
+            Set<String> passedNames = passed.stream()
+                    .map(c -> c.getName().toLowerCase())
+                    .collect(Collectors.toSet());
+
+            boolean allRequiredMet = required.stream()
+                    .map(c -> c.getName().toLowerCase())
+                    .allMatch(passedNames::contains);
+
+            if (allRequiredMet) {
                 score += 10;
             } else {
                 return 0; // Prerequisite not met
@@ -59,9 +67,15 @@ public class MatchingService {
         Set<Tag> topicTags = topic.getTags();
 
         if (studentInterests != null && topicTags != null) {
-            Set<Tag> intersection = new HashSet<>(studentInterests);
-            intersection.retainAll(topicTags);
-            score += intersection.size();
+            Set<String> studentTagNames = studentInterests.stream()
+                    .map(t -> t.getName().toLowerCase())
+                    .collect(Collectors.toSet());
+
+            long matches = topicTags.stream()
+                    .map(t -> t.getName().toLowerCase())
+                    .filter(studentTagNames::contains)
+                    .count();
+            score += (int) matches;
         }
 
         return score;
@@ -73,9 +87,15 @@ public class MatchingService {
         Set<Tag> advisorTags = advisor.getTags();
 
         if (studentInterests != null && advisorTags != null) {
-            Set<Tag> intersection = new HashSet<>(studentInterests);
-            intersection.retainAll(advisorTags);
-            score += intersection.size();
+            Set<String> studentTagNames = studentInterests.stream()
+                    .map(t -> t.getName().toLowerCase())
+                    .collect(Collectors.toSet());
+
+            long matches = advisorTags.stream()
+                    .map(t -> t.getName().toLowerCase())
+                    .filter(studentTagNames::contains)
+                    .count();
+            score += (int) matches;
         }
         return score;
     }

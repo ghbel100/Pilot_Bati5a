@@ -108,13 +108,11 @@
         <h3 class="fw-bold mb-4 text-primary">Alle Themen</h3>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
             <div class="col" th:each="topic : ${topics}">
-                <a th:href="${topic.link}" class="text-decoration-none" target="_blank">
+                <a th:href="@{/topic/{title}(title=${topic.title})}" class="text-decoration-none">
                     <div class="card h-100 bg-white border-0 shadow-sm rounded-4 p-3 transition"
                         style="transition: box-shadow .2s;">
                         <div class="card-body text-center">
                             <h5 class="card-title text-primary fw-bold mb-2" th:text="${topic.title}">Thementitel</h5>
-                            <p class="card-text text-muted small" th:text="${topic.description.getContent()}">
-                                Beschreibung</p>
                             <div class="mt-2 text-start">
                                 <span th:each="tag : ${topic.tags}"
                                     class="badge bg-light text-primary border border-primary-subtle me-1 mb-1"

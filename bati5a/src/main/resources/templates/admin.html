@@ -30,9 +30,55 @@
     <main class="container py-5">
         <div class="row">
             <div class="col-12">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}">Fehler!</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
                 <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
                     <span th:text="${message}">Erfolg!</span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Create Profile Card -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-success text-white py-3">
+                        <h2 class="h4 mb-0 fw-bold">Neues Profil erstellen</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/admin/create-profile}" method="post" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="type" class="form-label">Profiltyp</label>
+                                <select class="form-select" id="type" name="type" required>
+                                    <option value="student" selected>Student</option>
+                                    <option value="advisor">Advisor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="githubLogin" class="form-label">GitHub Login</label>
+                                <input type="text" class="form-control" id="githubLogin" name="githubLogin" required placeholder="GitHub Username">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="branch" class="form-label">Studiengang/Bereich</label>
+                                <input type="text" class="form-control" id="branch" name="branch" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="birthday" class="form-label">Geburtsdatum</label>
+                                <input type="date" class="form-control" id="birthday" name="birthday" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Profil erstellen</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="card shadow-sm border-0 rounded-4 overflow-hidden">

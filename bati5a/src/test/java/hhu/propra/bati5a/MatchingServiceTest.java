@@ -106,4 +106,28 @@ public class MatchingServiceTest {
 
         assertEquals(0, results.get(0).getScore());
     }
+
+    @Test
+    public void testRateTopicsCaseInsensitive() {
+        MatchingService service = new MatchingService();
+
+        // System has "Java"
+        Tag systemTag = new Tag("Java");
+        Course systemCourse = new Course("OOP");
+
+        Topic topic = new Topic("Java Topic", "http://l1", new Markdown("Desc"), 
+                Collections.singleton(systemCourse),
+                new HashSet<>(Collections.singletonList(systemTag)));
+
+        // Student inputs "java" and "oop" (lowercase)
+        Student student = new Student("Student", "CS", java.time.LocalDate.now().minusYears(20), "s@test.com");
+        student.setInterests(new HashSet<>(Collections.singletonList(new Tag("java"))));
+        student.setPassedCourses(new HashSet<>(Collections.singletonList(new Course("oop"))));
+
+        List<MatchRating<Topic>> results = service.rateTopics(student, Collections.singletonList(topic));
+
+        // Should match despite case difference
+        // 10 (req met) + 1 (tag) = 11
+        assertEquals(11, results.get(0).getScore());
+    }
 }

@@ -3,6 +3,7 @@ package hhu.propra.bati5a;
 import hhu.propra.bati5a.application.service.BrowsingService;
 import hhu.propra.bati5a.application.service.FileStorageService;
 import hhu.propra.bati5a.application.service.ProfileService;
+import hhu.propra.bati5a.domain.service.MatchingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ public class AppTest {
 
     @MockBean
     BrowsingService browsingService;
+
+    @MockBean
+    MatchingService matchingService;
 
     @MockBean
     ProfileService profileService;

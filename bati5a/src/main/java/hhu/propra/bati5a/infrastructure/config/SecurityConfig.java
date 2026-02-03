@@ -19,8 +19,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .logout(l -> l.logoutSuccessUrl("/").permitAll())
-                .oauth2Login(
-                        Customizer.withDefaults()
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/profile", true)
                 );
 
         return http.build();
